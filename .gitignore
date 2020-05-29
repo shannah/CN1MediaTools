@@ -1,0 +1,5 @@
+dist
+build
+private
+*.jar
+lib/CodenameOne_SRC.zip

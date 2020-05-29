@@ -1,0 +1,63 @@
+= CN1MediaTools
+
+Some useful tools for working with Media in https://www.codenameone.com[Codename One].
+
+
+== License
+
+Apache 2.0
+
+== Installation
+
+Install through Codename One settings.  
+
+If you haven’t activated any cn1libs before in your Codename One projects, see https://www.codenameone.com/blog/automatically-install-update-distribute-cn1libs-extensions.html[this tutorial] which explains the process.
+
+== Synopsis
+
+Currently this lib contains only one class, MediaChannel, which encapsulates a thread-safe media queue for playing/recording Media.  When media is played on a channel, the channel will ensure that any currently-playing media is paused completely before the next starts to play.  This is especially helpful when alternating between recording (with the microphone) and playing audio as some platforms (e.g. iOS Safari) will choke if trying to use the microphone before the previous audio clip is completely paused - or vice versa.
+
+== Using MediaChannel
+
+**Step 1: Set up a media channel**
+
+Generally you'll want to set up a single media channel for the whole app.  You can place this in a static global variable, or use the singleton design pattern.
+
+e.g.
+
+[source,java]
+----
+import com.codename1.media.MediaChannel;
+
+...
+
+public static final MediaChannel channel = new MediaChannel();
+
+----
+
+**Step 2: Play Media on the Channel**
+
+Any place where you would have previously called the `play()` or `playAsync()` method on your Media, you should instead call `channel.play(theMediaObject)`.
+
+That's it.  This will ensure that the media is synchronized properly.
+
+
+== Building from Source
+
+[source,bash]
+----
+git clone https://github.com/shannah/CN1MediaTools
+cd CN1MediaTools
+sh setup.sh
+./antw jar
+----
+
+== Further Reading
+
+. https://shannah.github.io/CN1MediaTools/javadoc[CN1MediaTools Javadocs]
+. https://www.codenameone.com/[Codename One website]
+
+== Credits
+
+. Created by https://sjhannah.com[Steve Hannah]
+
