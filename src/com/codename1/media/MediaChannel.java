@@ -70,7 +70,18 @@ public class MediaChannel {
      * A media listener that is registered with the currently-running media. 
      */
     private ActionListener<MediaStateChangeEvent> mediaListener = evt->{
-        MediaStateChangeEvent mevt = (MediaStateChangeEvent)evt;
+        onStateChange(evt);
+    };
+    
+    
+    private void onStateChange(MediaStateChangeEvent mevt) {
+        if (!CN.isEdt()) {
+            CN.callSerially(()->{
+                onStateChange(mevt);
+            });
+            return;
+        }
+        
         if (mevt.getNewState() == State.Paused) {
             currMediaState = STATE_PAUSED;
             updateTrack();
@@ -79,7 +90,7 @@ public class MediaChannel {
             currMediaState = STATE_PLAYING;
             updateTrack();
         }
-    };
+    }
     
     /**
      * Checks to see if there is any media in the queue yet to play, and advances
@@ -93,8 +104,14 @@ public class MediaChannel {
             // There is a pending media element in the queue.
             // We need to advance to the last media element in the queue.
             MediaWrapper currW = queue.getFirst();
+            if (currW == null) {
+                throw new IllegalStateException("Found current media wrapper to be null, even though the queue was not empty.  Probably a race condition");
+            }
             AsyncMedia curr = currW.media;
-            PlayRequest currReq = queue.getFirst().req;
+            if (curr == null) {
+                throw new IllegalStateException("Found current media to be null, even though the wrapper for it was not null.  Probably a race condition.");
+            }
+            //PlayRequest currReq = currW.req;
             switch (currMediaState) {
                 case STATE_PAUSED:
                     // The current media is currently in paused state.
