@@ -161,7 +161,12 @@ public class MediaChannel {
                     break;
                 case STATE_PLAY_PENDING:
                 case STATE_PLAYING:
-                    curr.pause();
+                    if (curr.isPlaying()) {
+                        curr.pause();
+                    } else {
+                        currMediaState = STATE_PAUSED;
+                        updateTrack();
+                    }
                     break;
                     
                     
@@ -195,9 +200,20 @@ public class MediaChannel {
      * @return The play request object to track when play has started.
      */
     public PlayRequest play(AsyncMedia media) {
-        return play(new PlayRequest(), media, false);
+        return play(media, false);
+        
     }
     
+    /**
+     * Plays the provided media on the channel.
+     * @param media The media to play
+     * @param autoclean If true, then the channel will automatically call cleanup() on the media 
+     * when it is finished playing.
+     * @return The play request object to track when play has started.
+     */
+    public PlayRequest play(AsyncMedia media, boolean autoclean) {
+        return play(new PlayRequest(), media, autoclean);
+    }
 
     /**
      * Plays the provided media on the channel.
